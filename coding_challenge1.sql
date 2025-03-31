@@ -147,26 +147,29 @@ GROUP BY Shelters.Namee
 ORDER BY TotalAdopted DESC
 LIMIT 1;
 
--- Insert sample data
-INSERT INTO Shelters (Namee, Location) VALUES 
-('Happy Paws Shelter', 'Chennai'),
-('Safe Haven', 'Mumbai');
+-- 17. Retrieve a list of all shelters along with the count of pets currently available for adoption in each shelter. 
+SELECT Shelters.Namee AS ShelterName, 
+       COUNT(Pets.PetID) AS AvailablePets
+FROM Shelters
+LEFT JOIN Pets ON Shelters.ShelterID = Pets.OwnerID AND Pets.AvailableForAdoption = 1
+GROUP BY Shelters.ShelterID, Shelters.Namee;
 
-INSERT INTO Pets (Namee, Age, Breed, Typee, AvailableForAdoption, OwnerID) VALUES 
-('Buddy', 3, 'Labrador', 'Dog', 1, 1),
-('Milo', 5, 'Persian Cat', 'Cat', 1, 2),
-('Coco', 2, 'Beagle', 'Dog', 0, 1);
+-- 18. Find the average age of pets available for adoption in each shelter:
+SELECT Shelters.Namee AS ShelterName, IFNULL(AVG(Pets.Age), 0) AS AvgPetAge
+FROM Shelters
+LEFT JOIN Pets ON Shelters.ShelterID = Pets.OwnerID AND Pets.AvailableForAdoption = 1
+GROUP BY Shelters.Namee;
 
-INSERT INTO Users (Namee) VALUES 
-('John Doe'),
-('Alice Smith');
+-- 19. Retrieve the total number of adoptions that occurred each month and year:
+SELECT DATE_FORMAT(AdoptionDate, '%M %Y') AS MonthYear, 
+       COUNT(AdoptionID) AS TotalAdoptions
+FROM Adoption
+GROUP BY MonthYear
+ORDER BY MIN(AdoptionDate);
 
-INSERT INTO Adoption (PetID, UserID, AdoptionDate) VALUES 
-(1, 1, NOW()),
-(2, 2, NOW());
+-- 20. Find the donor who made the highest single donation and their donation amount:
+SELECT DonorName, DonationAmount
+FROM Donations
+WHERE DonationAmount = (SELECT MAX(DonationAmount) FROM Donations);
 
-INSERT INTO AdoptionEvents (EventName, EventDate, Location) VALUES 
-('Pet Adoption Day', '2025-04-10', 'Chennai');
 
-INSERT INTO Participants (ParticipantName, ParticipantTypee, EventID) VALUES 
-('John Doe', 'Adopter', 1);
